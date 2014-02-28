@@ -1,0 +1,150 @@
+/*
+ * GeoLocation Application
+ * 
+ * Copyright 2014 Keith Eyre
+ * Open for development pending request to Keith Eyre
+ * 
+ * 
+ * This application, so far, finds the location of the device(currently sent in to the emulator from Eclipse)
+ * Find the distance between the current location (Lat and Long) and a bus stop.
+ * Display the distance to the screen. It also displays the current long and lat of the device
+ * 
+ * 
+ * 
+ * TODO:
+ * Add list view to display stop name i.e. "42", "40D" etc.
+ * When list item is clicked, re-calculate distance and display it.
+ * 
+ * New activity with Name, stop ID EditText boxes and a Save button
+ * 
+ * 
+ * Save button -
+ * will edit url, send credentials (Username: keitheyre Password: 2602eyre) and pull XML
+ * Search XML for stopID and get latitude and longitude and save name and co-ords existing array
+ * Return to main activity, add new entry to list, re-calculate distance
+ * 
+ * Search stops.txt for long and lat and get .......OOPS
+ * Parse stops.txt for stopID and lat and long and use stopID for URL query ^^^ to find bus times
+ * When XML is pulled, get time only for bus number ("42") etc.
+ * 
+ *  Display RTPI until 42 is at stop.
+ * 
+ * 
+ */
+
+
+
+
+package com.KeithEyre.geolocation;
+
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.app.Activity;
+import android.content.Context;
+import android.view.Menu;
+import android.widget.TextView;
+
+public class MainActivity extends Activity {
+	
+	TextView textLat;
+	TextView textLong;
+	TextView distBetween;
+	float dist;
+	
+	double pLat, pLong, busLat, busLong;
+	
+	double lat42 = 53.4419569038382;
+	double long42 = -6.15133288532249;
+	
+	double lat40d =53.4212741042116;
+	double long40d = -6.38820277751977;
+	
+	double lattest =53.441234;
+	double longtest = -6.151384;
+	
+	String[] favoriteNames = {"42", "40D"};
+	double[] favoriteLatitude = {53.4419569038382, 53.4212741042116};
+	double[] favoriteLongitude = {-6.15133288532249, -6.38820277751977};
+	
+	Location loc1 = new Location("");
+	Location loc2 = new Location("");
+	
+	
+	
+	
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		
+		//Reference to objects
+		textLat = (TextView)findViewById(R.id.LatValue);
+		textLong = (TextView)findViewById(R.id.LongValue);
+		distBetween = (TextView)findViewById(R.id.DistanceBetween);
+		
+		LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+		LocationListener ll = new myLocationListener();
+		lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, ll);
+	}
+		class myLocationListener implements LocationListener{
+
+			@Override
+			public void onLocationChanged(Location location) {
+				//If location is not null
+				if(location != null){
+					//get location and store in double
+					pLong = location.getLongitude();
+					pLat = location.getLatitude();
+					
+					loc1.setLatitude(pLat);
+					loc1.setLongitude(pLong);
+					
+					loc2.setLatitude(favoriteLatitude[0]);
+					loc2.setLongitude(favoriteLongitude[0]);
+					
+					dist = loc1.distanceTo(loc2);
+					
+					//Set the text to the value that is returned from getLong/ getLat
+					textLat.setText(Double.toString(pLat));
+					textLong.setText(Double.toString(pLong));
+					
+					distBetween.setText("The " + favoriteNames[0]+ " bus stop is " + Float.toString(dist) + " meters away");
+				}
+				
+				
+			}
+
+			@Override
+			public void onProviderDisabled(String provider) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onProviderEnabled(String provider) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onStatusChanged(String provider, int status,
+					Bundle extras) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		}//End inner class for getting location
+		
+		
+		
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+
+}
